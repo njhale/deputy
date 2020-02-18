@@ -8,8 +8,8 @@ import (
 	"github.com/sirupsen/logrus"
 	"github.com/spf13/cobra"
 
-	"github.com/ecordell/cop/pkg/bugzilla"
-	jiraclient "github.com/ecordell/cop/pkg/jira"
+	"github.com/njhale/deputy/pkg/bugzilla"
+	jiraclient "github.com/njhale/deputy/pkg/jira"
 )
 
 type syncOptions struct {

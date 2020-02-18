@@ -9,7 +9,6 @@ import (
 
 	"github.com/stretchr/testify/require"
 	"golang.org/x/net/html"
-	"golang.org/x/net/html/atom"
 	"gopkg.in/andygrunwald/go-jira.v1"
 )
 
@@ -56,75 +55,4 @@ func TestLogin(t *testing.T) {
 	t.Logf("%#v", i)
 	t.Logf("%#v", i.Fields)
 	t.Logf("%#v", r)
-}
-
-func getSAMLRequest(response *http.Response) string {
-	doc := html.NewTokenizer(response.Body)
-	for tokenType := doc.Next(); tokenType != html.ErrorToken; {
-		token := doc.Token()
-
-		if tokenType == html.StartTagToken {
-			if token.DataAtom != atom.Textarea {
-				tokenType = doc.Next()
-				continue
-			}
-			for _, attr := range token.Attr {
-				if attr.Key == "name" && attr.Val == "SAMLRequest" {
-					if doc.Next() == html.TextToken {
-						return doc.Token().String()
-					}
-				}
-			}
-		}
-		tokenType = doc.Next()
-	}
-	return ""
-}
-
-func getSAMLResponse(n *html.Node) string {
-	if n.Type == html.ElementNode && n.DataAtom == atom.Input {
-		isSamlInput := false
-		for _, attr := range n.Attr {
-			if attr.Key == "name" && attr.Val == "SAMLResponse" {
-				isSamlInput = true
-			}
-		}
-		if !isSamlInput {
-			return ""
-		}
-		for _, attr := range n.Attr {
-			if attr.Key == "value" {
-				return attr.Val
-			}
-		}
-	}
-	for c := n.FirstChild; c != nil; c = c.NextSibling {
-		if found := getSAMLResponse(c); found != "" {
-			return found
-		}
-	}
-
-	return ""
-}
-
-func getFormURL(response *http.Response) string {
-	doc := html.NewTokenizer(response.Body)
-
-	for tokenType := doc.Next(); tokenType != html.ErrorToken; {
-		token := doc.Token()
-
-		if tokenType == html.StartTagToken {
-			if token.DataAtom != atom.Form {
-				tokenType = doc.Next()
-				continue
-			}
-			for _, attr := range token.Attr {
-				if attr.Key == "action" {
-					return attr.Val
-				}
-			}
-		}
-		tokenType = doc.Next()
-	}
-	return ""
 }
